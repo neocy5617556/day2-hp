@@ -88,6 +88,44 @@
     font-size:13px;cursor:pointer;text-decoration:none;display:inline-block;
   }
   .btn:hover{opacity:.9}
+  /* ランキング表彰台 */
+  .podium{
+    display:grid;gap:14px;grid-template-columns:repeat(3,1fr);margin-bottom:24px;
+  }
+  @media(max-width:640px){.podium{grid-template-columns:1fr}}
+  .podium-card{
+    position:relative;background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--radius);padding:20px 18px;text-align:center;box-shadow:var(--shadow);
+    display:flex;flex-direction:column;gap:8px;align-items:center;
+  }
+  .podium-card.rank1{border-color:#f6c453;background:linear-gradient(180deg,rgba(246,196,83,.14),transparent 60%),var(--panel)}
+  .podium-card.rank2{border-color:#c7ccd6;background:linear-gradient(180deg,rgba(199,204,214,.12),transparent 60%),var(--panel)}
+  .podium-card.rank3{border-color:#d08c52;background:linear-gradient(180deg,rgba(208,140,82,.12),transparent 60%),var(--panel)}
+  .medal{font-size:40px;line-height:1}
+  .podium-card .pname{font-weight:700;font-size:16px}
+  .podium-card .parea{color:var(--muted);font-size:12px}
+  .score-badge{
+    display:inline-flex;align-items:baseline;gap:3px;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:999px;padding:6px 14px;
+  }
+  .score-badge b{font-size:22px;color:var(--accent-2)}
+  .score-badge .max{color:var(--muted);font-size:11px}
+  .podium-card .pstars{color:var(--accent-2);font-size:14px;letter-spacing:1px}
+  .podium-card .pmeta{color:var(--muted);font-size:12px}
+
+  /* カード上の順位バッジ */
+  .rank-tag{
+    position:absolute;top:-10px;left:-10px;width:34px;height:34px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;
+    background:var(--panel-2);border:1px solid var(--line);color:var(--muted);z-index:2;
+  }
+  .rank-tag.r1{background:#f6c453;color:#1a1300;border-color:#f6c453}
+  .rank-tag.r2{background:#c7ccd6;color:#15181f;border-color:#c7ccd6}
+  .rank-tag.r3{background:#d08c52;color:#1a1000;border-color:#d08c52}
+  .card{position:relative}
+  .card .mini-score{color:var(--accent-2);font-weight:700;font-size:13px}
+  .section-title{font-size:14px;color:var(--muted);letter-spacing:.08em;margin:0 0 12px}
+
   .empty{text-align:center;color:var(--muted);padding:60px 20px}
   footer{text-align:center;color:var(--muted);font-size:12px;padding:24px;border-top:1px solid var(--line)}
   .disclaimer{background:rgba(246,196,83,.08);border:1px solid rgba(246,196,83,.3);color:var(--accent-2);
@@ -115,6 +153,7 @@
     <div class="field">
       <label for="sort">並び替え</label>
       <select id="sort">
+        <option value="score-desc">総合ランキング順</option>
         <option value="rating-desc">評価が高い順</option>
         <option value="price-asc">料金が安い順</option>
         <option value="price-desc">料金が高い順</option>
@@ -123,6 +162,9 @@
     </div>
     <div class="tags" id="tags"></div>
   </div>
+
+  <h2 class="section-title" id="podium-title">🏆 総合ランキング TOP3</h2>
+  <section class="podium" id="podium"></section>
 
   <div class="meta-row">
     <span class="count" id="count"></span>
@@ -154,8 +196,18 @@ const SHOPS = [
   { name:"Zen Tattoo 吉祥寺", area:"武蔵野市", rating:4.7, reviews:89, minPrice:14000, priceUnit:"〜/ワンポイント", styles:["ファインライン","ブラック&グレー","ジャパニーズ"], review:"落ち着いた住宅街のプライベートスタジオ。" },
 ];
 
+/* ---- 総合スコア（100点満点）----
+   評価点(60%) + 口コミ数の多さ(40%) で算出。
+   口コミ数は全店中の最多件数を満点として相対評価。 */
+const MAX_REVIEWS = Math.max(...SHOPS.map(s=>s.reviews));
+SHOPS.forEach(s=>{
+  const ratingScore = (s.rating/5)*60;
+  const reviewScore = (s.reviews/MAX_REVIEWS)*40;
+  s.score = Math.round(ratingScore + reviewScore);
+});
+
 /* ---- 状態 ---- */
-const state = { q:"", area:"", sort:"rating-desc", styles:new Set() };
+const state = { q:"", area:"", sort:"score-desc", styles:new Set() };
 
 /* ---- 初期化：エリア・スタイルのフィルタUIを生成 ---- */
 const areaSel = document.getElementById("area");
@@ -202,10 +254,11 @@ function render(){
 
   list.sort((a,b)=>{
     switch(state.sort){
-      case "price-asc":  return a.minPrice-b.minPrice;
-      case "price-desc": return b.minPrice-a.minPrice;
+      case "rating-desc": return b.rating-a.rating;
+      case "price-asc":   return a.minPrice-b.minPrice;
+      case "price-desc":  return b.minPrice-a.minPrice;
       case "reviews-desc":return b.reviews-a.reviews;
-      default:           return b.rating-a.rating; // rating-desc
+      default:            return b.score-a.score; // score-desc（総合ランキング）
     }
   });
 
@@ -215,10 +268,29 @@ function render(){
   grid.innerHTML="";
   empty.style.display=list.length?"none":"block";
 
-  list.forEach(s=>{
+  /* ---- 表彰台（総合スコア上位3店・現在の絞り込みを反映）---- */
+  const medals=["🥇","🥈","🥉"];
+  const top3=[...list].sort((a,b)=>b.score-a.score).slice(0,3);
+  const podium=document.getElementById("podium");
+  document.getElementById("podium-title").style.display=top3.length?"block":"none";
+  podium.innerHTML=top3.map((s,i)=>`
+    <div class="podium-card rank${i+1}">
+      <div class="medal">${medals[i]}</div>
+      <div class="pname">${s.name}</div>
+      <div class="parea">📍 ${s.area}</div>
+      <div class="score-badge"><b>${s.score}</b><span class="max">/100点</span></div>
+      <div class="pstars">${stars(s.rating)} ${s.rating.toFixed(1)}</div>
+      <div class="pmeta">口コミ ${s.reviews} 件 ・ ${yen(s.minPrice)}${s.priceUnit}</div>
+    </div>`).join("");
+
+  /* ---- 一覧カード（現在の並び順の順位バッジ付き）---- */
+  list.forEach((s,i)=>{
+    const rank=i+1;
+    const rankCls=rank<=3?`r${rank}`:"";
     const card=document.createElement("article");
     card.className="card";
     card.innerHTML=`
+      <div class="rank-tag ${rankCls}">${rank}</div>
       <div class="card-top">
         <div>
           <h3 class="shop-name">${s.name}</h3>
@@ -233,7 +305,7 @@ function render(){
       <div class="chips">${s.styles.map(st=>`<span class="chip">${st}</span>`).join("")}</div>
       <div class="review">“${s.review}”</div>
       <div class="card-foot">
-        <span class="rating cnt">口コミ ${s.reviews} 件</span>
+        <span class="rating cnt">総合 <span class="mini-score">${s.score}点</span> ・ 口コミ ${s.reviews} 件</span>
         <a class="btn" href="#" onclick="return false">詳細を見る</a>
       </div>`;
     grid.appendChild(card);
