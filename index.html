@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TATTOO SHOP 比較 | 都内タトゥースタジオ比較サイト</title>
+<meta name="description" content="東京都内のタトゥースタジオを料金・口コミ・タトゥーの種類で比較できるサイトです。">
+<style>
+  :root{
+    --bg:#0f1115;
+    --panel:#181b22;
+    --panel-2:#1f232c;
+    --line:#2a2f3a;
+    --text:#e8eaed;
+    --muted:#9aa3b2;
+    --accent:#e94560;
+    --accent-2:#f6c453;
+    --ok:#4ade80;
+    --radius:14px;
+    --shadow:0 8px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.6;
+  }
+  a{color:inherit}
+  header.hero{
+    padding:48px 20px 32px;text-align:center;
+    background:radial-gradient(1200px 400px at 50% -50%,rgba(233,69,96,.25),transparent),var(--bg);
+    border-bottom:1px solid var(--line);
+  }
+  .hero h1{margin:0 0 8px;font-size:clamp(26px,4vw,40px);letter-spacing:.04em}
+  .hero p{margin:0;color:var(--muted)}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px 20px 64px}
+
+  /* controls */
+  .controls{
+    display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px;margin-bottom:20px;box-shadow:var(--shadow);
+  }
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:12px;color:var(--muted);letter-spacing:.05em}
+  .field select,.field input{
+    background:var(--panel-2);border:1px solid var(--line);color:var(--text);
+    padding:10px 12px;border-radius:10px;font-size:14px;outline:none;
+  }
+  .field select:focus,.field input:focus{border-color:var(--accent)}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;grid-column:1/-1}
+  .tag{
+    border:1px solid var(--line);background:var(--panel-2);color:var(--muted);
+    padding:6px 12px;border-radius:999px;font-size:13px;cursor:pointer;user-select:none;
+    transition:.15s;
+  }
+  .tag.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+  .meta-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+  .count{color:var(--muted);font-size:14px}
+
+  /* cards */
+  .grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);
+    transition:.15s;
+  }
+  .card:hover{transform:translateY(-3px);border-color:var(--accent)}
+  .card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+  .shop-name{font-size:18px;font-weight:700;margin:0}
+  .area{color:var(--muted);font-size:13px}
+  .rating{display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .stars{color:var(--accent-2);letter-spacing:2px;font-size:15px}
+  .rating .num{font-weight:700}
+  .rating .cnt{color:var(--muted);font-size:12px}
+
+  .price{font-size:15px}
+  .price b{color:var(--accent-2);font-size:20px}
+  .price .unit{color:var(--muted);font-size:12px}
+
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{background:var(--panel-2);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:3px 9px;font-size:12px}
+
+  .review{border-top:1px solid var(--line);padding-top:10px;color:var(--muted);font-size:13px;font-style:italic}
+  .card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto}
+  .btn{
+    background:var(--accent);color:#fff;border:none;border-radius:10px;padding:9px 16px;
+    font-size:13px;cursor:pointer;text-decoration:none;display:inline-block;
+  }
+  .btn:hover{opacity:.9}
+  .empty{text-align:center;color:var(--muted);padding:60px 20px}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:24px;border-top:1px solid var(--line)}
+  .disclaimer{background:rgba(246,196,83,.08);border:1px solid rgba(246,196,83,.3);color:var(--accent-2);
+    border-radius:10px;padding:10px 14px;font-size:12px;margin-bottom:20px}
+</style>
+</head>
+<body>
+<header class="hero">
+  <h1>TOKYO TATTOO 比較</h1>
+  <p>都内のタトゥースタジオを 料金・口コミ・スタイル で比較</p>
+</header>
+
+<div class="wrap">
+  <div class="disclaimer">⚠️ 掲載データはサンプル（ダミー）です。実際の店舗情報・料金は各店舗の公式サイトでご確認ください。</div>
+
+  <div class="controls">
+    <div class="field">
+      <label for="q">キーワード検索</label>
+      <input id="q" type="text" placeholder="店名・エリアで検索">
+    </div>
+    <div class="field">
+      <label for="area">エリア</label>
+      <select id="area"><option value="">すべて</option></select>
+    </div>
+    <div class="field">
+      <label for="sort">並び替え</label>
+      <select id="sort">
+        <option value="rating-desc">評価が高い順</option>
+        <option value="price-asc">料金が安い順</option>
+        <option value="price-desc">料金が高い順</option>
+        <option value="reviews-desc">口コミ件数順</option>
+      </select>
+    </div>
+    <div class="tags" id="tags"></div>
+  </div>
+
+  <div class="meta-row">
+    <span class="count" id="count"></span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" style="display:none">条件に合う店舗が見つかりませんでした。</div>
+</div>
+
+<footer>© TOKYO TATTOO 比較 — サンプルサイト</footer>
+
+<script>
+/* ==========================================================================
+   店舗データ（サンプル）
+   実データに差し替える場合はこの配列を編集してください。
+   minPrice: 最低料金の目安（円）  priceUnit: 料金の単位表記
+   styles:   得意なタトゥーのスタイル（タグとして絞り込みに使用）
+   ========================================================================== */
+const SHOPS = [
+  { name:"Ink Sanctuary 渋谷", area:"渋谷", rating:4.8, reviews:214, minPrice:15000, priceUnit:"〜/ワンポイント", styles:["ワンポイント","ブラック&グレー","レタリング"], review:"衛生管理が徹底していて安心。デザインの相談も丁寧でした。" },
+  { name:"Crimson Needle 新宿", area:"新宿", rating:4.6, reviews:301, minPrice:12000, priceUnit:"〜/ワンポイント", styles:["カラー","トラッド","ワンポイント"], review:"発色がきれいでアフターケアの説明も◎。" },
+  { name:"和彫り 匠 浅草", area:"浅草", rating:4.9, reviews:98, minPrice:40000, priceUnit:"〜/1回(和彫り)", styles:["和彫り","ブラック&グレー"], review:"伝統的な和彫りならここ。職人の技術が圧巻。" },
+  { name:"Neo Tokyo Tattoo 池袋", area:"池袋", rating:4.3, reviews:156, minPrice:10000, priceUnit:"〜/ワンポイント", styles:["ジャパニーズ","カラー","ワンポイント"], review:"リーズナブルで初心者にも優しい。" },
+  { name:"Monochrome Studio 中目黒", area:"目黒", rating:4.7, reviews:132, minPrice:18000, priceUnit:"〜/ワンポイント", styles:["ブラック&グレー","ファインライン","レタリング"], review:"繊細なファインラインが得意。落ち着いた雰囲気。" },
+  { name:"Rebel Arts 六本木", area:"港区", rating:4.4, reviews:187, minPrice:20000, priceUnit:"〜/ワンポイント", styles:["トラッド","カラー","リアリズム"], review:"海外アーティストも在籍。大作の相談向き。" },
+  { name:"Sakura Ink 上野", area:"台東区", rating:4.5, reviews:76, minPrice:13000, priceUnit:"〜/ワンポイント", styles:["ジャパニーズ","ワンポイント","ファインライン"], review:"女性スタッフ在籍で相談しやすい。" },
+  { name:"Black Lotus 銀座", area:"中央区", rating:4.6, reviews:143, minPrice:25000, priceUnit:"〜/ワンポイント", styles:["リアリズム","ブラック&グレー"], review:"高級感のある空間。仕上がりのクオリティが高い。" },
+  { name:"Street Ink 原宿", area:"渋谷", rating:4.2, reviews:265, minPrice:9000, priceUnit:"〜/ワンポイント", styles:["カラー","ワンポイント","レタリング"], review:"若者に人気。当日予約もしやすい。" },
+  { name:"Zen Tattoo 吉祥寺", area:"武蔵野市", rating:4.7, reviews:89, minPrice:14000, priceUnit:"〜/ワンポイント", styles:["ファインライン","ブラック&グレー","ジャパニーズ"], review:"落ち着いた住宅街のプライベートスタジオ。" },
+];
+
+/* ---- 状態 ---- */
+const state = { q:"", area:"", sort:"rating-desc", styles:new Set() };
+
+/* ---- 初期化：エリア・スタイルのフィルタUIを生成 ---- */
+const areaSel = document.getElementById("area");
+[...new Set(SHOPS.map(s=>s.area))].sort().forEach(a=>{
+  const o=document.createElement("option"); o.value=a; o.textContent=a; areaSel.appendChild(o);
+});
+
+const allStyles=[...new Set(SHOPS.flatMap(s=>s.styles))].sort();
+const tagsEl=document.getElementById("tags");
+allStyles.forEach(st=>{
+  const b=document.createElement("span");
+  b.className="tag"; b.textContent=st; b.dataset.style=st;
+  b.addEventListener("click",()=>{
+    b.classList.toggle("active");
+    if(state.styles.has(st)) state.styles.delete(st); else state.styles.add(st);
+    render();
+  });
+  tagsEl.appendChild(b);
+});
+
+/* ---- イベント ---- */
+document.getElementById("q").addEventListener("input",e=>{state.q=e.target.value.trim();render();});
+areaSel.addEventListener("change",e=>{state.area=e.target.value;render();});
+document.getElementById("sort").addEventListener("change",e=>{state.sort=e.target.value;render();});
+
+/* ---- ユーティリティ ---- */
+function stars(r){
+  const full=Math.floor(r), half=r-full>=0.5;
+  return "★".repeat(full)+(half?"⯪":"")+"☆".repeat(5-full-(half?1:0));
+}
+const yen=n=>"¥"+n.toLocaleString("ja-JP");
+
+/* ---- 描画 ---- */
+function render(){
+  let list=SHOPS.filter(s=>{
+    if(state.area && s.area!==state.area) return false;
+    if(state.q){
+      const q=state.q.toLowerCase();
+      if(!(s.name.toLowerCase().includes(q)||s.area.toLowerCase().includes(q))) return false;
+    }
+    if(state.styles.size && ![...state.styles].every(st=>s.styles.includes(st))) return false;
+    return true;
+  });
+
+  list.sort((a,b)=>{
+    switch(state.sort){
+      case "price-asc":  return a.minPrice-b.minPrice;
+      case "price-desc": return b.minPrice-a.minPrice;
+      case "reviews-desc":return b.reviews-a.reviews;
+      default:           return b.rating-a.rating; // rating-desc
+    }
+  });
+
+  const grid=document.getElementById("grid");
+  const empty=document.getElementById("empty");
+  document.getElementById("count").textContent=`${list.length} 件の店舗`;
+  grid.innerHTML="";
+  empty.style.display=list.length?"none":"block";
+
+  list.forEach(s=>{
+    const card=document.createElement("article");
+    card.className="card";
+    card.innerHTML=`
+      <div class="card-top">
+        <div>
+          <h3 class="shop-name">${s.name}</h3>
+          <div class="area">📍 ${s.area}</div>
+        </div>
+        <div class="rating">
+          <span class="stars">${stars(s.rating)}</span>
+          <span class="num">${s.rating.toFixed(1)}</span>
+        </div>
+      </div>
+      <div class="price">最低料金 <b>${yen(s.minPrice)}</b> <span class="unit">${s.priceUnit}</span></div>
+      <div class="chips">${s.styles.map(st=>`<span class="chip">${st}</span>`).join("")}</div>
+      <div class="review">“${s.review}”</div>
+      <div class="card-foot">
+        <span class="rating cnt">口コミ ${s.reviews} 件</span>
+        <a class="btn" href="#" onclick="return false">詳細を見る</a>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+render();
+</script>
+</body>
+</html>
